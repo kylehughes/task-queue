@@ -1,3 +1,3 @@
-# task-queue
+# Task Queue
 
 A description of this package.
