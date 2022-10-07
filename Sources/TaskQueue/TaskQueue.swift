@@ -7,7 +7,7 @@
 
 import Foundation
 
-/// Actor that can constrain the number of concurrent `Task`s being executed, like `OperationQueue` with
+/// An actor that can constrain the number of concurrent `Task`s being executed, like `OperationQueue` with
 /// `maxConcurrentOperationCount`.
 public actor TaskQueue {
     private let maxConcurrentTaskCount: Int
@@ -28,7 +28,7 @@ public actor TaskQueue {
         pendingContinuations = []
     }
     
-    // MARK: Public Instance Interface
+    // MARK: Adding Interface
 
     @discardableResult
     public func add<Success>(
@@ -51,6 +51,46 @@ public actor TaskQueue {
     }
     
     public func add<Success>(_ task: @escaping @Sendable () async throws -> Success) async rethrows -> Success {
+        await setUpTask()
+        
+        defer {
+            tearDownTask()
+        }
+        
+        return try await task()
+    }
+    
+    // MARK: Conditional Additing Interface
+    
+    @discardableResult
+    public func addUnlessCancelled<Success>(
+        priority: TaskPriority? = nil,
+        _ task: @escaping @Sendable () async throws -> Success
+    ) -> Task<Success, any Error> {
+        Task(priority: priority) {
+            try await addUnlessCancelled(task)
+        }
+    }
+    
+    public func addUnlessCancelled<Success>(
+        _ task: @escaping @Sendable () async throws -> Success
+    ) async throws -> Success {
+        try Task.checkCancellation()
+        
+        await setUpTask()
+        
+        defer {
+            tearDownTask()
+        }
+        
+        try Task.checkCancellation()
+        
+        return try await task()
+    }
+    
+    // MARK: Private Instance Interface
+    
+    private func setUpTask() async {
         if maxConcurrentTaskCount <= numberOfRunningTasks {
             await withUnsafeContinuation {
                 pendingContinuations.append($0)
@@ -58,15 +98,13 @@ public actor TaskQueue {
         }
         
         numberOfRunningTasks += 1
+    }
+    
+    private func tearDownTask() {
+        numberOfRunningTasks -= 1
         
-        defer {
-            numberOfRunningTasks -= 1
-            
-            if !pendingContinuations.isEmpty {
-                pendingContinuations.removeFirst().resume()
-            }
+        if !pendingContinuations.isEmpty {
+            pendingContinuations.removeFirst().resume()
         }
-        
-        return try await task()
     }
 }
