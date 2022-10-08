@@ -10,6 +10,10 @@ import Foundation
 /// An actor that can constrain the number of concurrent `Task`s being executed, like `OperationQueue` with
 /// `maxConcurrentOperationCount`.
 public actor TaskQueue {
+    /// The maximum number of queued tasks that can run at the same time.
+    ///
+    /// The value in this property affects only the tasks that the current queue has executing at the same time. Other
+    /// queues can also execute their maximum number of operations in parallel.
     public let maxConcurrentTaskCount: Int
     
     private var numberOfRunningTasks: Int
