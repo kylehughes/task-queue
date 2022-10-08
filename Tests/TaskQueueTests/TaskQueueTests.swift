@@ -13,7 +13,29 @@ final class TaskQueueTests: XCTestCase {
     // MARK: XCTestCase Implementation
 }
 
-// MARK: - General Tests
+// MARK: - Initialization Tests
+
+extension TaskQueueTests {
+    // MARK: Tests
+    
+    func test_initialization_maxConcurrentTaskCount() async {
+        let expectedMaxConcurrentTaskCount = 6
+        let queue = TaskQueue(maxConcurrentTaskCount: 6)
+        let maxConcurrentTaskCount = await queue.maxConcurrentTaskCount
+        
+        XCTAssertEqual(maxConcurrentTaskCount, expectedMaxConcurrentTaskCount)
+    }
+    
+    func test_initialization_urlSession() async {
+        let urlSession: URLSession = .shared
+        let queue = TaskQueue(for: urlSession)
+        let maxConcurrentTaskCount = await queue.maxConcurrentTaskCount
+        
+        XCTAssertEqual(maxConcurrentTaskCount, urlSession.configuration.httpMaximumConnectionsPerHost)
+    }
+}
+
+// MARK: - Recursion Tests
 
 extension TaskQueueTests {
     // MARK: Tests

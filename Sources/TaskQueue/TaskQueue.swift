@@ -10,7 +10,7 @@ import Foundation
 /// An actor that can constrain the number of concurrent `Task`s being executed, like `OperationQueue` with
 /// `maxConcurrentOperationCount`.
 public actor TaskQueue {
-    private let maxConcurrentTaskCount: Int
+    public let maxConcurrentTaskCount: Int
     
     private var numberOfRunningTasks: Int
     private var pendingContinuations: [UnsafeContinuation<Void, Never>]
