@@ -21,20 +21,6 @@ public actor TaskQueue {
     
     // MARK: Public Initialization
     
-    /// Create a new queue where the maximum number of concurrent tasks is equivalent to the maximum number of
-    /// concurrent connections that the given `URLSession` can handle.
-    ///
-    /// We use `httpMaximumConnectionsPerHost` on the `URLSession`'s configuration as an approximation of this value.
-    /// This has been observed anecdotally to be accurate.
-    ///
-    /// This is provided as a convenience for a common callsite. The queue does not need to be used with the given
-    /// `URLSession` and the queue does not hold a reference to it.
-    ///
-    /// - Parameter urlSession: The `URLSession` that the queue will be tailored to.
-    public init(for urlSession: URLSession) {
-        self.init(maxConcurrentTaskCount: urlSession.configuration.httpMaximumConnectionsPerHost)
-    }
-    
     public init(maxConcurrentTaskCount: Int) {
         self.maxConcurrentTaskCount = maxConcurrentTaskCount
         

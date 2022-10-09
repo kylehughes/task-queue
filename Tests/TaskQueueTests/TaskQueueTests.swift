@@ -13,10 +13,10 @@ final class TaskQueueTests: XCTestCase {
     // MARK: XCTestCase Implementation
 }
 
-// MARK: - Initialization Tests
+// MARK: - Core Tests
 
 extension TaskQueueTests {
-    // MARK: Tests
+    // MARK: Initialization Tests
     
     func test_initialization_maxConcurrentTaskCount() async {
         let expectedMaxConcurrentTaskCount = 6
@@ -27,20 +27,7 @@ extension TaskQueueTests {
         XCTAssertEqual(maxConcurrentTaskCount, expectedMaxConcurrentTaskCount)
     }
     
-    func test_initialization_urlSession() async {
-        let urlSession: URLSession = .shared
-        
-        let queue = TaskQueue(for: urlSession)
-        let maxConcurrentTaskCount = await queue.maxConcurrentTaskCount
-        
-        XCTAssertEqual(maxConcurrentTaskCount, urlSession.configuration.httpMaximumConnectionsPerHost)
-    }
-}
-
-// MARK: - Recursion Tests
-
-extension TaskQueueTests {
-    // MARK: Tests
+    // MARK: Recursion Tests
     
     func test_recursion_concurrent() async throws {
         let queue = TaskQueue(maxConcurrentTaskCount: 2)
@@ -78,7 +65,18 @@ extension TaskQueueTests {
 
 @available(iOS 15.0, *)
 extension TaskQueueTests {
-    // MARK: Tests
+    // MARK: Initialization Tests
+    
+    func test_initialization_urlSession() async {
+        let urlSession: URLSession = .shared
+        
+        let queue = TaskQueue(for: urlSession)
+        let maxConcurrentTaskCount = await queue.maxConcurrentTaskCount
+        
+        XCTAssertEqual(maxConcurrentTaskCount, urlSession.configuration.httpMaximumConnectionsPerHost)
+    }
+    
+    // MARK: Concurrent Interface Tests
     
     func test_urlSession_associatedTaskQueues_inequality() {
         let urlSession: URLSession = .shared
@@ -95,7 +93,7 @@ extension TaskQueueTests {
         let (_, _) = try await urlSession.dataConcurrently(from: url)
     }
     
-    // MARK: Factory Functions
+    // MARK: Private Factory Functions
     
     private func urlForFileInCache(named fileName: String = #function, extension: String) -> URL {
         FileManager
