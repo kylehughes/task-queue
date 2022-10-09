@@ -73,3 +73,40 @@ extension TaskQueueTests {
         }
     }
 }
+
+// MARK: - URLSession Tests
+
+@available(iOS 15.0, *)
+extension TaskQueueTests {
+    // MARK: Tests
+    
+    func test_urlSession_associatedTaskQueues_inequality() {
+        let urlSession: URLSession = .shared
+        
+        XCTAssertTrue(urlSession.incomingTaskingQueue !== urlSession.outgoingTaskingQueue)
+    }
+    
+    func test_urlSession_data_url() async throws {
+        let urlSession: URLSession = .shared
+        let url: URL = urlForTextFileInCache()
+        
+        try Date.now.formatted().write(to: url, atomically: true, encoding: .utf8)
+        
+        let (_, _) = try await urlSession.dataConcurrently(from: url)
+    }
+    
+    // MARK: Factory Functions
+    
+    private func urlForFileInCache(named fileName: String = #function, extension: String) -> URL {
+        FileManager
+            .default
+            .urls(for: .cachesDirectory, in: .userDomainMask)
+            .first!
+            .appendingPathComponent(fileName)
+            .appendingPathExtension(`extension`)
+    }
+    
+    private func urlForTextFileInCache(named fileName: String = #function) -> URL {
+        urlForFileInCache(named: fileName, extension: "txt")
+    }
+}

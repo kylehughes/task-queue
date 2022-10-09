@@ -13,13 +13,13 @@ extension URLSession {
     /// The queue used by the incoming-oriented `*Concurrently` functions (e.g. `data`, `download`) to constrain the
     /// number of concurrent tasks for this object.
     public var incomingTaskingQueue: TaskQueue {
-        objc_getOrMakeAssociatedObject(on: self, factory: TaskQueue.init)
+        objc_getOrMakeAssociatedObject(on: self, for: &AssociatedKey.incomingTaskQueue, factory: TaskQueue.init)
     }
     
     /// The queue used by the outgoing-oriented `*Concurrently` functions (i.e. `upload`) to constrain the number of
     /// concurrent tasks for this object.
     public var outgoingTaskingQueue: TaskQueue {
-        objc_getOrMakeAssociatedObject(on: self, factory: TaskQueue.init)
+        objc_getOrMakeAssociatedObject(on: self, for: &AssociatedKey.outgoingTaskQueue, factory: TaskQueue.init)
     }
     
     // MARK: Performing Concurrent Asynchronous Transfers
@@ -160,7 +160,7 @@ private enum AssociatedKey {
 
 private func objc_getOrMakeAssociatedObject<Target, AssociatedObject>(
     on target: Target,
-    for key: String = #function,
+    for key: UnsafeRawPointer,
     policy: objc_AssociationPolicy = .OBJC_ASSOCIATION_RETAIN,
     factory: (Target) -> AssociatedObject
 ) -> AssociatedObject {
