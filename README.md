@@ -1,6 +1,6 @@
 # Task Queue
 
-*A queue for Swift structured concurrency.*
+*A queue that regulates the execution of concurrent tasks, for Swift.*
 
 ## Installation
 
